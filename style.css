@@ -1,4 +1,4 @@
-/*
+/* 
 =========================================
   FREQLAB - STYLE.CSS
   Dark Mode & Neon Aesthetics
@@ -12,18 +12,21 @@
     --bg-surface: #121620;
     --bg-card: #1a1f2c;
     --bg-input: #0f111a;
-
+    
     --text-primary: #f0f3f6;
     --text-muted: #8b949e;
-
+    
     --color-cyan: #00f0ff;
+    --color-teal: #00ffc4;
     --color-green: #39ff14;
+    --color-gold: #ffd700;
+    --color-magenta: #ff00ab;
     --color-purple: #bd00ff;
     --color-danger: #ff0055;
-
+    
     --border-color: rgba(255, 255, 255, 0.08);
     --border-glow: rgba(0, 240, 255, 0.15);
-
+    
     --font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
     --transition-speed: 0.25s;
     --border-radius: 12px;
@@ -253,9 +256,11 @@ header .subtitle {
 }
 
 .btn:disabled {
-    opacity: 0.35;
+    opacity: 0.25;
     cursor: not-allowed;
     filter: grayscale(1);
+    box-shadow: none !important;
+    transform: none !important;
 }
 
 .btn-primary {
@@ -393,6 +398,22 @@ select {
     transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
 }
 
+select optgroup {
+    background-color: var(--bg-surface);
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.8rem;
+    margin: 0.5rem 0;
+}
+
+select option {
+    background-color: var(--bg-input);
+    color: var(--text-primary);
+    padding: 0.5rem;
+    font-weight: normal;
+    font-size: 0.9rem;
+}
+
 select:focus {
     border-color: var(--color-cyan);
     box-shadow: 0 0 8px rgba(0, 240, 255, 0.25);
@@ -417,6 +438,7 @@ select:focus {
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 0.85rem;
+    margin-bottom: 1.25rem;
 }
 
 .stat-item {
@@ -436,6 +458,26 @@ select:focus {
     font-size: 1rem;
     font-weight: 600;
     color: var(--color-cyan);
+}
+
+/* WAV Export Container & Button */
+.export-container {
+    width: 100%;
+}
+
+.btn-export-wav {
+    width: 100%;
+    background-color: transparent;
+    border: 1px solid var(--color-purple);
+    color: var(--color-purple);
+    box-shadow: 0 0 8px rgba(189, 0, 255, 0.1);
+}
+
+.btn-export-wav:not(:disabled):hover {
+    background-color: var(--color-purple);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(189, 0, 255, 0.4), 0 0 12px rgba(189, 0, 255, 0.2);
+    transform: translateY(-2px);
 }
 
 /* --- Spectrum Visualizer Card --- */
@@ -496,7 +538,7 @@ canvas {
     left: 0;
     right: 0;
     bottom: 0;
-    background-image:
+    background-image: 
         linear-gradient(rgba(0, 240, 255, 0.02) 1px, transparent 1px),
         linear-gradient(90deg, rgba(0, 240, 255, 0.02) 1px, transparent 1px);
     background-size: 40px 40px;
@@ -569,11 +611,13 @@ canvas {
     font-family: monospace;
     font-weight: 700;
     font-size: 1.1rem;
+    white-space: nowrap;
 }
 
 .name-cell {
     font-weight: 600;
     color: var(--text-primary);
+    min-width: 150px;
 }
 
 .freq-table td p {
@@ -584,6 +628,26 @@ canvas {
 .text-cyan {
     color: var(--color-cyan);
     text-shadow: 0 0 8px rgba(0, 240, 255, 0.3);
+}
+
+.text-teal {
+    color: var(--color-teal);
+    text-shadow: 0 0 8px rgba(0, 255, 196, 0.3);
+}
+
+.text-green {
+    color: var(--color-green);
+    text-shadow: 0 0 8px rgba(57, 255, 20, 0.3);
+}
+
+.text-gold {
+    color: var(--color-gold);
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+}
+
+.text-magenta {
+    color: var(--color-magenta);
+    text-shadow: 0 0 8px rgba(255, 0, 171, 0.3);
 }
 
 .text-purple {

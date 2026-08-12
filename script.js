@@ -1,4 +1,4 @@
-/*
+/* 
 =========================================
   FREQLAB - SCRIPT.JS
   Vanilla JS & Web Audio API Engine
@@ -12,18 +12,21 @@ const AppState = {
     audioBuffer: null,          // Decoded audio data
     sourceNode: null,           // AudioBufferSourceNode
     analyserNode: null,         // AnalyserNode for spectrum visualization
-
+    
+    // Loaded file metadata
+    loadedFileName: "track",
+    
     // Playback state
     isPlaying: false,
     startTime: 0,               // AudioContext time when current session started playing
     startOffset: 0,             // Progress offset in buffer seconds (where we started playing)
     playbackRate: 1.0,          // Current playback rate based on selected tuning
-
+    
     // UI components & timing
     animationFrameId: null,
     currentTuning: 440,         // Target tuning (Hz)
     standardFrequency: 440,     // Standard reference tuning (Hz)
-
+    
     // For seeking
     isDraggingSeekBar: false
 };
@@ -36,19 +39,20 @@ const DOM = {
     fileInfo: document.getElementById('file-info'),
     fileName: document.getElementById('selected-file-name'),
     fileSize: document.getElementById('selected-file-size'),
-
+    
     btnPlay: document.getElementById('btn-play'),
     btnPause: document.getElementById('btn-pause'),
     btnStop: document.getElementById('btn-stop'),
-
+    btnExport: document.getElementById('btn-export'),
+    
     currentTimeDisplay: document.getElementById('current-time'),
     durationDisplay: document.getElementById('duration'),
     seekBar: document.getElementById('seek-bar'),
-
+    
     tuningSelect: document.getElementById('tuning-select'),
     playbackRateVal: document.getElementById('playback-rate-val'),
     pitchShiftCents: document.getElementById('pitch-shift-cents'),
-
+    
     fftSizeSelect: document.getElementById('fft-size-select'),
     canvas: document.getElementById('visualizer-canvas')
 };
@@ -102,6 +106,11 @@ function setupEventListeners() {
         stop();
     });
 
+    // WAV Export
+    DOM.btnExport.addEventListener('click', () => {
+        exportToWav();
+    });
+
     // Seek / Progress bar interactions
     DOM.seekBar.addEventListener('input', () => {
         AppState.isDraggingSeekBar = true;
@@ -112,10 +121,10 @@ function setupEventListeners() {
 
     DOM.seekBar.addEventListener('change', () => {
         if (!AppState.audioBuffer) return;
-
+        
         const targetPercent = DOM.seekBar.value;
         const targetTime = (targetPercent / 100) * AppState.audioBuffer.duration;
-
+        
         seekTo(targetTime);
         AppState.isDraggingSeekBar = false;
     });
@@ -153,6 +162,9 @@ function handleFileSelect() {
     const file = DOM.fileInput.files[0];
     if (!file) return;
 
+    // Cache pure file name without extension
+    AppState.loadedFileName = file.name.replace(/\.[^/.]+$/, "");
+
     // Show selected file information
     DOM.fileName.textContent = file.name;
     DOM.fileSize.textContent = formatBytes(file.size);
@@ -169,22 +181,22 @@ function handleFileSelect() {
     const reader = new FileReader();
     reader.onload = function(e) {
         const arrayBuffer = e.target.result;
-
+        
         ensureAudioContext();
-
+        
         // Decode audio data asynchronously
         AppState.audioCtx.decodeAudioData(arrayBuffer)
             .then((decodedBuffer) => {
                 AppState.audioBuffer = decodedBuffer;
-
+                
                 // Reset seek and times
                 AppState.startOffset = 0;
                 DOM.seekBar.value = 0;
                 DOM.seekBar.disabled = false;
                 DOM.currentTimeDisplay.textContent = "00:00";
                 DOM.durationDisplay.textContent = formatTime(AppState.audioBuffer.duration);
-
-                // Enable playback controls
+                
+                // Enable playback and export controls
                 setPlaybackButtonsState({ ready: true });
                 console.log("Audio decoded successfully. Duration:", AppState.audioBuffer.duration, "seconds");
             })
@@ -232,7 +244,7 @@ function play() {
     if (AppState.startOffset >= AppState.audioBuffer.duration) AppState.startOffset = 0;
 
     AppState.sourceNode.start(0, AppState.startOffset);
-
+    
     // Track timestamps
     AppState.isPlaying = true;
     AppState.startTime = AppState.audioCtx.currentTime;
@@ -242,7 +254,7 @@ function play() {
 
     // 6. Update UI
     setPlaybackButtonsState({ playing: true });
-
+    
     // Start drawing spectrum visualizer loop
     drawSpectrum();
     updateProgressBarLoop();
@@ -262,7 +274,7 @@ function pause() {
     } catch (e) {
         console.warn("Source stop error:", e);
     }
-
+    
     AppState.sourceNode = null;
     AppState.isPlaying = false;
 
@@ -333,7 +345,7 @@ function updateTuningParameters() {
 
     // Update Pitch Cents offset: cents = 1200 * log2(f2/f1)
     const centsOffset = 1200 * Math.log2(newPlaybackRate);
-
+    
     // Update displayed statistics
     DOM.playbackRateVal.textContent = newPlaybackRate.toFixed(4) + "x";
     DOM.pitchShiftCents.textContent = (centsOffset >= 0 ? "+" : "") + centsOffset.toFixed(1) + " cents";
@@ -351,6 +363,147 @@ function updateTuningParameters() {
 
     // Now update the playback rate in AppState
     AppState.playbackRate = newPlaybackRate;
+}
+
+// --- WAV Export Module ---
+function exportToWav() {
+    if (!AppState.audioBuffer) return;
+
+    // Indicate processing state visually
+    const originalBtnText = DOM.btnExport.innerHTML;
+    DOM.btnExport.innerHTML = '<span class="btn-icon">⏳</span> Processing...';
+    DOM.btnExport.disabled = true;
+
+    // Temporarily pause main playback so as to not conflict processing resources
+    const wasPlaying = AppState.isPlaying;
+    if (wasPlaying) {
+        pause();
+    }
+
+    // Get input specifications
+    const numChannels = AppState.audioBuffer.numberOfChannels;
+    const sampleRate = AppState.audioBuffer.sampleRate;
+    
+    // Scale output duration directly based on the selected tuning ratio
+    // Length (samples) = original duration (seconds) / playbackRate * sampleRate
+    const targetLength = Math.floor((AppState.audioBuffer.duration / AppState.playbackRate) * sampleRate);
+
+    // 1. Initialize OfflineAudioContext
+    const OfflineCtxClass = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+    const offlineCtx = new OfflineCtxClass(numChannels, targetLength, sampleRate);
+
+    // 2. Create and configure Offline Buffer Source
+    const offlineSource = offlineCtx.createBufferSource();
+    offlineSource.buffer = AppState.audioBuffer;
+    offlineSource.playbackRate.value = AppState.playbackRate;
+
+    // 3. Connect and schedule
+    offlineSource.connect(offlineCtx.destination);
+    offlineSource.start(0);
+
+    // 4. Perform rendering
+    offlineCtx.startRendering()
+        .then((renderedBuffer) => {
+            console.log("Offline audio rendering finished. Encoding to WAV...");
+            
+            // 5. Encode the rendered AudioBuffer to WAV format bytes
+            const wavDataView = bufferToWav(renderedBuffer);
+            
+            // 6. Assemble download package
+            const wavBlob = new Blob([wavDataView], { type: 'audio/wav' });
+            const url = URL.createObjectURL(wavBlob);
+            
+            // 7. Auto-trigger browser download
+            const downloadLink = document.createElement('a');
+            downloadLink.href = url;
+            downloadLink.download = `${AppState.loadedFileName}-converted-${AppState.currentTuning}Hz.wav`;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            
+            // Cleanup references
+            document.body.removeChild(downloadLink);
+            URL.revokeObjectURL(url);
+            
+            // Reset button state
+            DOM.btnExport.innerHTML = originalBtnText;
+            DOM.btnExport.disabled = false;
+
+            // Resume audio if it was playing previously
+            if (wasPlaying) {
+                play();
+            }
+        })
+        .catch((err) => {
+            console.error("WAV Export rendering error:", err);
+            alert("An error occurred while generating the WAV file.");
+            DOM.btnExport.innerHTML = originalBtnText;
+            DOM.btnExport.disabled = false;
+        });
+}
+
+// Custom 16-bit PCM Linear WAV Encoder
+function bufferToWav(buffer) {
+    const numOfChan = buffer.numberOfChannels;
+    const sampleRate = buffer.sampleRate;
+    const format = 1; // 1 = raw 16-bit PCM (Pulse-Code Modulation)
+    const bitDepth = 16;
+    
+    // Collect separate channel pointer arrays
+    const channels = [];
+    let length = 0;
+    for (let i = 0; i < numOfChan; i++) {
+        channels.push(buffer.getChannelData(i));
+    }
+    
+    // Total interleaved sample length
+    length = buffer.length;
+
+    const bufferSize = length * numOfChan * (bitDepth / 8);
+    const arrayBuffer = new ArrayBuffer(44 + bufferSize);
+    const view = new DataView(arrayBuffer);
+
+    /* ---- Write RIFF Container Header ---- */
+    writeString(view, 0, 'RIFF');                         // ChunkID
+    view.setUint32(4, 36 + bufferSize, true);             // ChunkSize
+    writeString(view, 8, 'WAVE');                         // Format
+
+    /* ---- Write 'fmt ' Sub-chunk Descriptor ---- */
+    writeString(view, 12, 'fmt ');                        // Subchunk1ID
+    view.setUint32(16, 16, true);                         // Subchunk1Size (16 for PCM)
+    view.setUint16(20, format, true);                     // AudioFormat (1)
+    view.setUint16(22, numOfChan, true);                  // NumChannels
+    view.setUint32(24, sampleRate, true);                 // SampleRate
+    view.setUint32(28, sampleRate * numOfChan * (bitDepth / 8), true); // ByteRate
+    view.setUint16(32, numOfChan * (bitDepth / 8), true); // BlockAlign
+    view.setUint16(34, bitDepth, true);                   // BitsPerSample
+
+    /* ---- Write 'data' Sub-chunk Content ---- */
+    writeString(view, 36, 'data');                        // Subchunk2ID
+    view.setUint32(40, bufferSize, true);                 // Subchunk2Size
+
+    /* ---- Interleave and Encode PCM Samples ---- */
+    let offset = 44;
+    for (let i = 0; i < length; i++) {
+        for (let channel = 0; channel < numOfChan; channel++) {
+            // Get sample [-1.0, 1.0] and clamp
+            let sample = channels[channel][i];
+            if (sample > 1.0) sample = 1.0;
+            if (sample < -1.0) sample = -1.0;
+
+            // Scale to 16-bit signed integer range: [-32768, 32767]
+            const pcmSample = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
+            view.setInt16(offset, pcmSample, true);
+            offset += 2;
+        }
+    }
+
+    return view;
+}
+
+function writeString(view, offset, string) {
+    for (let i = 0; i < string.length; i++) {
+        view.setUint8(offset + i, string.charCodeAt(i));
+    }
 }
 
 // --- UI Rendering Loops ---
@@ -382,15 +535,14 @@ function drawSpectrum() {
 
     for (let i = 0; i < bufferLength; i++) {
         const val = dataArray[i]; // value between 0 - 255
-
+        
         // Dynamic normalization and scaling
         barHeight = (val / 255) * height * 0.9;
 
         // Gradient styling
-        // Low frequencies (cyan/green) to high frequencies (purple/magenta)
         const percent = i / bufferLength;
         const gradient = canvasCtx.createLinearGradient(0, height, 0, height - barHeight);
-
+        
         if (percent < 0.3) {
             // Cyber Cyan/Green Glow
             gradient.addColorStop(0, 'rgba(0, 240, 255, 0.3)');
@@ -406,7 +558,7 @@ function drawSpectrum() {
         }
 
         canvasCtx.fillStyle = gradient;
-
+        
         // Rounded bars logic for an organic aesthetics
         canvasCtx.fillRect(x, height - barHeight, barWidth - 1, barHeight);
 
@@ -433,7 +585,7 @@ function updateProgressBarLoop() {
             // Update seek slider percentage
             const percent = (currentProgress / duration) * 100;
             DOM.seekBar.value = Math.min(percent, 100);
-
+            
             // Update time indicator
             DOM.currentTimeDisplay.textContent = formatTime(Math.min(currentProgress, duration));
         }
@@ -450,7 +602,7 @@ function resizeCanvas() {
     const rect = DOM.canvas.getBoundingClientRect();
     DOM.canvas.width = rect.width * window.devicePixelRatio;
     DOM.canvas.height = rect.height * window.devicePixelRatio;
-
+    
     // Draw background placeholder immediately
     clearCanvas();
 }
@@ -460,7 +612,7 @@ function clearCanvas() {
     const height = DOM.canvas.height;
     canvasCtx.fillStyle = '#0b0d13';
     canvasCtx.fillRect(0, 0, width, height);
-
+    
     // Draw empty spectrum subtle flatline
     canvasCtx.beginPath();
     canvasCtx.moveTo(0, height - 20);
@@ -490,6 +642,7 @@ function setPlaybackButtonsState({ loading = false, ready = false, playing = fal
         DOM.btnPlay.disabled = true;
         DOM.btnPause.disabled = true;
         DOM.btnStop.disabled = true;
+        DOM.btnExport.disabled = true;
         DOM.fileTextPrompt.textContent = "Decoding audio... Please wait.";
         return;
     }
@@ -498,18 +651,22 @@ function setPlaybackButtonsState({ loading = false, ready = false, playing = fal
         DOM.btnPlay.disabled = true;
         DOM.btnPause.disabled = false;
         DOM.btnStop.disabled = false;
+        DOM.btnExport.disabled = false;
     } else if (paused) {
         DOM.btnPlay.disabled = false;
         DOM.btnPause.disabled = true;
         DOM.btnStop.disabled = false;
+        DOM.btnExport.disabled = false;
     } else if (ready) {
         DOM.btnPlay.disabled = false;
         DOM.btnPause.disabled = true;
         DOM.btnStop.disabled = true;
+        DOM.btnExport.disabled = false;
     } else {
         DOM.btnPlay.disabled = true;
         DOM.btnPause.disabled = true;
         DOM.btnStop.disabled = true;
+        DOM.btnExport.disabled = true;
     }
 }
 

@@ -66,12 +66,25 @@
                         <label for="tuning-select" class="form-label">Select Target Tuning:</label>
                         <div class="select-wrapper">
                             <select id="tuning-select">
-                                <option value="440" selected>440 Hz - Standard Reference</option>
-                                <option value="432">432 Hz - Universal / Cosmic Healing (0.9818x)</option>
-                                <option value="528">528 Hz - DNA Repair / Solfeggio Transformation (1.2000x)</option>
+                                <optgroup label="Concert / Performance Tuning">
+                                    <option value="440" selected>440 Hz - Standard Reference Pitch</option>
+                                    <option value="432">432 Hz - Verdi's A / Universal Healing (0.9818x)</option>
+                                </optgroup>
+                                <optgroup label="Solfeggio Scale Tuning">
+                                    <option value="174">174 Hz - Pain Reduction & Grounding (0.3955x)</option>
+                                    <option value="285">285 Hz - Tissue Repair & Energy Fields (0.6477x)</option>
+                                    <option value="396">396 Hz - Liberating Guilt & Fear (0.9000x)</option>
+                                    <option value="417">417 Hz - Undoing Situations & Change (0.9477x)</option>
+                                    <option value="528">528 Hz - DNA Repair & Miracles (1.2000x)</option>
+                                    <option value="639">639 Hz - Connecting & Relationships (1.4523x)</option>
+                                    <option value="741">741 Hz - Expression & Solutions (1.6841x)</option>
+                                    <option value="852">852 Hz - Returning to Spiritual Order (1.9364x)</option>
+                                    <option value="963">963 Hz - Divine Consciousness (2.1886x)</option>
+                                </optgroup>
                             </select>
                         </div>
                     </div>
+                    
                     <div class="tuning-stats">
                         <div class="stat-item">
                             <span class="stat-label">Playback Rate:</span>
@@ -81,6 +94,13 @@
                             <span class="stat-label">Pitch Shift:</span>
                             <span class="stat-value" id="pitch-shift-cents">0.0 cents</span>
                         </div>
+                    </div>
+
+                    <!-- WAV Export Action -->
+                    <div class="export-container">
+                        <button id="btn-export" class="btn btn-export-wav" disabled title="Export Audio to WAV">
+                            <span class="btn-icon">💾</span> Export Audio (WAV)
+                        </button>
                     </div>
                 </div>
             </section>
@@ -122,7 +142,7 @@
             <div class="card table-card">
                 <h2>Frequency Reference Guide</h2>
                 <p class="table-intro">Understand the physical, mathematical, and historical context behind key tuning standards and Solfeggio frequencies.</p>
-
+                
                 <div class="table-responsive">
                     <table class="freq-table">
                         <thead>
@@ -138,19 +158,67 @@
                                 <td class="freq-cell">440 Hz</td>
                                 <td class="name-cell">Standard Concert Pitch</td>
                                 <td>Widely accepted acoustic standard for tuning musical instruments. Purely utilitarian reference point used globally for orchestral calibration.</td>
-                                <td>Adopted as the international standard in 1955 by the International Organization for Standardization (<strong>ISO 16</strong>).</td>
+                                <td>Adopted as the international standard in 1955 and reaffirmed in 1975 by the International Organization for Standardization (<strong>ISO 16:1975</strong>).</td>
                             </tr>
                             <tr>
                                 <td class="freq-cell text-cyan">432 Hz</td>
-                                <td class="name-cell">Verdi Tuning / Universal Healing</td>
-                                <td>Believed to vibrate in harmony with the natural frequency of the Earth (Schumann resonances) and sacred geometry. Promotes a more relaxed, deeper listening experience by slightly lowering pitch and slowing tempo.</td>
-                                <td>Advocated by Italian composer Giuseppe Verdi in the 19th century as ideal for operatic voices. Supported by modern alternative acousticians and therapeutic sound practitioners.</td>
+                                <td class="name-cell">Verdi's A / Universal Tuning</td>
+                                <td>Believed to vibrate in harmony with the natural frequency of the Earth and sacred geometry. Promotes a more relaxed, deeper listening experience by slightly lowering pitch. Mathematical resonance with Pythagorean tuning.</td>
+                                <td>Strongly advocated by Italian opera composer Giuseppe Verdi in 1884 as ideal for operatic voices. Supported by ancient Pythagorean intervals and modern alternative acoustic researchers.</td>
                             </tr>
                             <tr>
-                                <td class="freq-cell text-purple">528 Hz</td>
-                                <td class="name-cell">Transformation & DNA Repair (Solfeggio)</td>
-                                <td>Known as the "Frequency of Love" or the "Transformation Frequency". Widely utilized in sound therapy, meditation music, and holistic healing. Promotes biological cell resonance and anxiety reduction.</td>
-                                <td>Part of the ancient <strong>Solfeggio Frequencies</strong> scale rediscovered by Dr. Joseph Puleo. Historically linked to sacred chants and medieval choral music for spiritual elevation.</td>
+                                <td class="freq-cell text-teal">174 Hz</td>
+                                <td class="name-cell">Pain Reduction & Grounding</td>
+                                <td>Operates as a natural anesthetic. Promotes deep physiological relaxation, relieves pain, and provides organs with a secure sense of grounding.</td>
+                                <td>Identified as an extension of the original Solfeggio scale. Widely detailed in modern vibrational sound therapy and energetic medicine guides.</td>
+                            </tr>
+                            <tr>
+                                <td class="freq-cell text-teal">285 Hz</td>
+                                <td class="name-cell">Tissue Repair & Energy Fields</td>
+                                <td>Believed to assist in sending messages to restructure damaged organs and tissue. Restores wellness to cells, optimizing internal systemic energy fields.</td>
+                                <td>Formulated as an extension to the core Solfeggio scale. Cited in acoustic cellular health studies and alternative holistic therapy manuals.</td>
+                            </tr>
+                            <tr>
+                                <td class="freq-cell text-green">396 Hz</td>
+                                <td class="name-cell">Liberating Guilt & Fear</td>
+                                <td>Targets negative thought-loops and subconscious blockages. Helps clear feelings of guilt, anxiety, and fear to facilitate goal realization.</td>
+                                <td>One of the primary Solfeggio frequencies decoded by researcher Dr. Joseph Puleo in the 1970s using Pythagorean reduction patterns.</td>
+                            </tr>
+                            <tr>
+                                <td class="freq-cell text-green">417 Hz</td>
+                                <td class="name-cell">Undoing Situations & Change</td>
+                                <td>Clears traumatic experiences and facilitates conscious/unconscious change. Energizes body cells, providing a foundation to break negative habits.</td>
+                                <td>Decoded and published in "Healing Codes for the Biological Apocalypse" by Dr. Joseph Puleo and Dr. Leonard Horowitz.</td>
+                            </tr>
+                            <tr>
+                                <td class="freq-cell text-gold">528 Hz</td>
+                                <td class="name-cell">Transformation & DNA Repair</td>
+                                <td>Commonly called the "Frequency of Love" or the "Transformation Frequency". Widely utilized in sound therapy, cell-regeneration studies, and anxiety reduction.</td>
+                                <td>Prominently analyzed and popularized by health researcher Dr. Leonard Horowitz. Historically linked to sacred music and structural biology theories.</td>
+                            </tr>
+                            <tr>
+                                <td class="freq-cell text-magenta">639 Hz</td>
+                                <td class="name-cell">Connecting & Relationships</td>
+                                <td>Improves communication, understanding, tolerance, and interpersonal harmony. Strengthens community connection and balances emotional relationships.</td>
+                                <td>A core frequency of the ancient Solfeggio scale rediscovered by Dr. Joseph Puleo, linked back to medieval Catholic Gregorian chant structures.</td>
+                            </tr>
+                            <tr>
+                                <td class="freq-cell text-magenta">741 Hz</td>
+                                <td class="name-cell">Expression & Solutions</td>
+                                <td>Promotes mental clarity, problem-solving, and clean, honest expression. Believed to help cleanse cells of electromagnetic radiation.</td>
+                                <td>Linked to the ancient Solfeggio sequence and studied extensively for its cognitive clarity benefits in meditative sound acoustics.</td>
+                            </tr>
+                            <tr>
+                                <td class="freq-cell text-purple">852 Hz</td>
+                                <td class="name-cell">Returning to Spiritual Order</td>
+                                <td>Increases intuition, spiritual awareness, and clarity of purpose. Facilitates personal alignment with divine or universal consciousness.</td>
+                                <td>Formally categorized by Dr. Joseph Puleo as a core Solfeggio frequency connected directly to inner-self calibration.</td>
+                            </tr>
+                            <tr>
+                                <td class="freq-cell text-purple">963 Hz</td>
+                                <td class="name-cell">Divine Consciousness</td>
+                                <td>Often called the "Pineal Gland Activator" or the "Crown Chakra Frequency". Awakens positive spiritual experiences and elevates high-frequency energy states.</td>
+                                <td>Considered the crown of the expanded Solfeggio scale. Widely documented in modern acoustic medicine, sound therapy practices, and spiritual meditation guides.</td>
                             </tr>
                         </tbody>
                     </table>
