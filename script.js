@@ -21,6 +21,7 @@ const AppState = {
     startTime: 0,               // AudioContext time when current session started playing
     startOffset: 0,             // Progress offset in buffer seconds (where we started playing)
     playbackRate: 1.0,          // Current playback rate based on selected tuning
+    isLooping: false,           // Music looping state
 
     // UI components & timing
     animationFrameId: null,
@@ -43,6 +44,7 @@ const DOM = {
     btnPlay: document.getElementById('btn-play'),
     btnPause: document.getElementById('btn-pause'),
     btnStop: document.getElementById('btn-stop'),
+    btnLoop: document.getElementById('btn-loop'),
     btnExport: document.getElementById('btn-export'),
 
     currentTimeDisplay: document.getElementById('current-time'),
@@ -104,6 +106,11 @@ function setupEventListeners() {
 
     DOM.btnStop.addEventListener('click', () => {
         stop();
+    });
+
+    // Loop Control Toggle
+    DOM.btnLoop.addEventListener('click', () => {
+        toggleLoop();
     });
 
     // WAV Export
@@ -238,7 +245,10 @@ function play() {
     // 4. Set current playback rate based on chosen tuning
     AppState.sourceNode.playbackRate.value = AppState.playbackRate;
 
-    // 5. Start audio source
+    // 5. Apply looping configuration if active
+    AppState.sourceNode.loop = AppState.isLooping;
+
+    // 6. Start audio source
     // Ensure standard boundaries
     if (AppState.startOffset < 0) AppState.startOffset = 0;
     if (AppState.startOffset >= AppState.audioBuffer.duration) AppState.startOffset = 0;
@@ -252,7 +262,7 @@ function play() {
     // Set ended callback to handle auto-progression to stop state
     AppState.sourceNode.onended = handlePlaybackEnded;
 
-    // 6. Update UI
+    // 7. Update UI
     setPlaybackButtonsState({ playing: true });
 
     // Start drawing spectrum visualizer loop
@@ -309,6 +319,23 @@ function stop() {
 
     // Draw clear visualizer background
     clearCanvas();
+}
+
+function toggleLoop() {
+    AppState.isLooping = !AppState.isLooping;
+
+    if (AppState.isLooping) {
+        DOM.btnLoop.classList.add('active');
+        DOM.btnLoop.innerHTML = '<span class="btn-icon">🔁</span> Loop: On';
+    } else {
+        DOM.btnLoop.classList.remove('active');
+        DOM.btnLoop.innerHTML = '<span class="btn-icon">🔁</span> Loop: Off';
+    }
+
+    // Apply real-time setting to running source node if it exists
+    if (AppState.sourceNode) {
+        AppState.sourceNode.loop = AppState.isLooping;
+    }
 }
 
 function seekTo(targetTimeInSeconds) {
@@ -578,10 +605,15 @@ function updateProgressBarLoop() {
     if (!AppState.isDraggingSeekBar) {
         // Compute total accumulated playback seconds
         const elapsedRealTime = AppState.audioCtx.currentTime - AppState.startTime;
-        const currentProgress = AppState.startOffset + (elapsedRealTime * AppState.playbackRate);
+        let currentProgress = AppState.startOffset + (elapsedRealTime * AppState.playbackRate);
         const duration = AppState.audioBuffer ? AppState.audioBuffer.duration : 0;
 
         if (duration > 0) {
+            // Handle visual progress rollover gracefully when Web Audio looping is enabled
+            if (AppState.isLooping && currentProgress >= duration) {
+                currentProgress = currentProgress % duration;
+            }
+
             // Update seek slider percentage
             const percent = (currentProgress / duration) * 100;
             DOM.seekBar.value = Math.min(percent, 100);
@@ -642,6 +674,7 @@ function setPlaybackButtonsState({ loading = false, ready = false, playing = fal
         DOM.btnPlay.disabled = true;
         DOM.btnPause.disabled = true;
         DOM.btnStop.disabled = true;
+        DOM.btnLoop.disabled = true;
         DOM.btnExport.disabled = true;
         DOM.fileTextPrompt.textContent = "Decoding audio... Please wait.";
         return;
@@ -651,21 +684,25 @@ function setPlaybackButtonsState({ loading = false, ready = false, playing = fal
         DOM.btnPlay.disabled = true;
         DOM.btnPause.disabled = false;
         DOM.btnStop.disabled = false;
+        DOM.btnLoop.disabled = false;
         DOM.btnExport.disabled = false;
     } else if (paused) {
         DOM.btnPlay.disabled = false;
         DOM.btnPause.disabled = true;
         DOM.btnStop.disabled = false;
+        DOM.btnLoop.disabled = false;
         DOM.btnExport.disabled = false;
     } else if (ready) {
         DOM.btnPlay.disabled = false;
         DOM.btnPause.disabled = true;
         DOM.btnStop.disabled = true;
+        DOM.btnLoop.disabled = false;
         DOM.btnExport.disabled = false;
     } else {
         DOM.btnPlay.disabled = true;
         DOM.btnPause.disabled = true;
         DOM.btnStop.disabled = true;
+        DOM.btnLoop.disabled = true;
         DOM.btnExport.disabled = true;
     }
 }

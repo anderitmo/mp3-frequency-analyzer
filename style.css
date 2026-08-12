@@ -299,6 +299,30 @@ header .subtitle {
     transform: translateY(-2px);
 }
 
+.btn-loop {
+    background-color: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--text-muted);
+}
+
+.btn-loop:not(:disabled):hover {
+    border-color: var(--color-cyan);
+    color: var(--text-primary);
+    transform: translateY(-2px);
+}
+
+.btn-loop.active {
+    background-color: rgba(0, 240, 255, 0.1);
+    border-color: var(--color-cyan);
+    color: var(--color-cyan);
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+}
+
+.btn-loop.active:not(:disabled):hover {
+    background-color: rgba(0, 240, 255, 0.2);
+    box-shadow: 0 0 16px rgba(0, 240, 255, 0.5), 0 4px 10px rgba(0, 240, 255, 0.2);
+}
+
 .btn:not(:disabled):active {
     transform: translateY(1px);
 }
