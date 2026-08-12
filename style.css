@@ -1,0 +1,617 @@
+/*
+=========================================
+  FREQLAB - STYLE.CSS
+  Dark Mode & Neon Aesthetics
+  Responsive Minimalist Dashboard
+=========================================
+*/
+
+/* --- Reset & Base Variables --- */
+:root {
+    --bg-base: #0a0c10;
+    --bg-surface: #121620;
+    --bg-card: #1a1f2c;
+    --bg-input: #0f111a;
+
+    --text-primary: #f0f3f6;
+    --text-muted: #8b949e;
+
+    --color-cyan: #00f0ff;
+    --color-green: #39ff14;
+    --color-purple: #bd00ff;
+    --color-danger: #ff0055;
+
+    --border-color: rgba(255, 255, 255, 0.08);
+    --border-glow: rgba(0, 240, 255, 0.15);
+
+    --font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+    --transition-speed: 0.25s;
+    --border-radius: 12px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    font-family: var(--font-family);
+    line-height: 1.6;
+    padding: 2rem 1rem;
+    min-height: 100vh;
+}
+
+/* --- Container Layout --- */
+.app-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* --- Header Section --- */
+header {
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1.5rem;
+}
+
+header .logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+header .logo .icon {
+    font-size: 2.2rem;
+    filter: drop-shadow(0 0 8px var(--color-cyan));
+}
+
+header h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: var(--text-primary);
+}
+
+header h1 span {
+    color: var(--color-cyan);
+    text-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
+}
+
+header .subtitle {
+    font-size: 1rem;
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+/* --- Dashboard Grid Layout --- */
+.dashboard {
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+@media (max-width: 1024px) {
+    .dashboard {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* --- Panel Layouts --- */
+.control-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.visualizer-panel {
+    height: 100%;
+}
+
+/* --- Cards (Generic Container) --- */
+.card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 1.75rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+}
+
+.card:hover {
+    border-color: rgba(0, 240, 255, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 15px rgba(0, 240, 255, 0.05);
+}
+
+.card h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+    border-left: 3px solid var(--color-cyan);
+    padding-left: 0.75rem;
+}
+
+.card-desc {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 1.25rem;
+}
+
+/* --- 1. Upload Card --- */
+.file-drop-zone {
+    border: 2px dashed rgba(255, 255, 255, 0.15);
+    border-radius: var(--border-radius);
+    background-color: var(--bg-input);
+    transition: all var(--transition-speed) ease-in-out;
+    cursor: pointer;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.file-drop-zone:hover, .file-drop-zone.dragover {
+    border-color: var(--color-cyan);
+    background-color: rgba(0, 240, 255, 0.03);
+    box-shadow: inset 0 0 10px rgba(0, 240, 255, 0.1);
+}
+
+.file-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.file-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.5rem;
+    pointer-events: none;
+}
+
+.upload-icon {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+    transition: transform var(--transition-speed);
+}
+
+.file-drop-zone:hover .upload-icon {
+    transform: translateY(-4px) scale(1.1);
+}
+
+.file-text {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.file-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--bg-input);
+    border: 1px solid rgba(0, 240, 255, 0.2);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.file-name {
+    color: var(--color-cyan);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 250px;
+}
+
+.file-size {
+    color: var(--text-muted);
+}
+
+/* --- 2. Playback Card & Controls --- */
+.playback-buttons {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all var(--transition-speed);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-icon {
+    font-size: 1rem;
+}
+
+.btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    filter: grayscale(1);
+}
+
+.btn-primary {
+    background-color: var(--color-green);
+    color: #000;
+    box-shadow: 0 4px 14px rgba(57, 255, 20, 0.2);
+}
+
+.btn-primary:not(:disabled):hover {
+    background-color: #4efd2c;
+    box-shadow: 0 4px 20px rgba(57, 255, 20, 0.4), 0 0 10px rgba(57, 255, 20, 0.2);
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background-color: var(--color-cyan);
+    color: #000;
+    box-shadow: 0 4px 14px rgba(0, 240, 255, 0.2);
+}
+
+.btn-secondary:not(:disabled):hover {
+    background-color: #3bf3ff;
+    box-shadow: 0 4px 20px rgba(0, 240, 255, 0.4), 0 0 10px rgba(0, 240, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.btn-danger {
+    background-color: var(--color-danger);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(255, 0, 85, 0.2);
+}
+
+.btn-danger:not(:disabled):hover {
+    background-color: #ff2a6d;
+    box-shadow: 0 4px 20px rgba(255, 0, 85, 0.4), 0 0 10px rgba(255, 0, 85, 0.2);
+    transform: translateY(-2px);
+}
+
+.btn:not(:disabled):active {
+    transform: translateY(1px);
+}
+
+/* Seek / Progress Bar Styling */
+.progress-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.time-display {
+    font-family: monospace;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    min-width: 45px;
+    user-select: none;
+}
+
+.seek-slider {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--bg-input);
+    outline: none;
+    cursor: pointer;
+    transition: background 0.15s ease-in-out;
+}
+
+.seek-slider::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 6px;
+    cursor: pointer;
+    background: #2b3040;
+    border-radius: 3px;
+}
+
+.seek-slider::-webkit-slider-thumb {
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: var(--color-cyan);
+    cursor: pointer;
+    -webkit-appearance: none;
+    margin-top: -5px;
+    box-shadow: 0 0 8px var(--color-cyan);
+    transition: transform 0.1s, background-color 0.1s;
+}
+
+.seek-slider:not(:disabled)::-webkit-slider-thumb:hover {
+    transform: scale(1.25);
+    background: #fff;
+}
+
+.seek-slider:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.seek-slider:disabled::-webkit-slider-thumb {
+    background: var(--text-muted);
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+/* --- 3. Pitch / Tuning Card --- */
+.tuning-selector-group {
+    margin-bottom: 1.25rem;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.select-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+select {
+    width: 100%;
+    background-color: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-primary);
+    padding: 0.8rem 1rem;
+    font-size: 0.9rem;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+}
+
+select:focus {
+    border-color: var(--color-cyan);
+    box-shadow: 0 0 8px rgba(0, 240, 255, 0.25);
+}
+
+.select-wrapper::after {
+    content: "▼";
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    position: absolute;
+    right: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.tuning-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    background-color: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.85rem;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.stat-value {
+    font-family: monospace;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-cyan);
+}
+
+/* --- Spectrum Visualizer Card --- */
+.visualizer-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.visualizer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.visualizer-header h2 {
+    margin-bottom: 0;
+}
+
+.visualizer-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.mini-select {
+    padding: 0.4rem 2rem 0.4rem 0.75rem;
+    background-color: var(--bg-input);
+    border-radius: 6px;
+    font-size: 0.8rem;
+}
+
+.canvas-wrapper {
+    position: relative;
+    flex: 1;
+    min-height: 380px;
+    background-color: #0b0d13;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    overflow: hidden;
+}
+
+canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
+}
+
+.canvas-grid-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+        linear-gradient(rgba(0, 240, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 240, 255, 0.02) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+}
+
+.visualizer-legend {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.75rem;
+    font-family: monospace;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 0.5rem;
+}
+
+/* --- Information Reference Scale Section --- */
+.info-section {
+    width: 100%;
+}
+
+.table-card {
+    background-color: var(--bg-surface);
+}
+
+.table-intro {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+}
+
+.table-responsive {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.freq-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.9rem;
+    background-color: var(--bg-input);
+}
+
+.freq-table th, .freq-table td {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.freq-table th {
+    background-color: rgba(255, 255, 255, 0.03);
+    color: var(--text-primary);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+}
+
+.freq-table tr:last-child td {
+    border-bottom: none;
+}
+
+.freq-table tr:hover {
+    background-color: rgba(0, 240, 255, 0.02);
+}
+
+.freq-cell {
+    font-family: monospace;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.name-cell {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.freq-table td p {
+    margin: 0;
+}
+
+/* --- Colors Helpers --- */
+.text-cyan {
+    color: var(--color-cyan);
+    text-shadow: 0 0 8px rgba(0, 240, 255, 0.3);
+}
+
+.text-purple {
+    color: var(--color-purple);
+    text-shadow: 0 0 8px rgba(189, 0, 255, 0.3);
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* --- Footer --- */
+footer {
+    text-align: center;
+    padding: 1.5rem 0;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border-color);
+}
+
+/* --- Keyframe Animations --- */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

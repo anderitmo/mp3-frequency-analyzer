@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MP3 Frequency Analyzer & Converter</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header>
+            <div class="logo">
+                <span class="icon">🎵</span>
+                <h1>FREQ<span>LAB</span></h1>
+            </div>
+            <p class="subtitle">Real-time MP3 Frequency Analyzer & Tuning Converter</p>
+        </header>
+
+        <!-- Main Dashboard -->
+        <main class="dashboard">
+            <!-- Left Panel: Controls and File Upload -->
+            <section class="control-panel">
+                <div class="card upload-card">
+                    <h2>1. Load Audio</h2>
+                    <p class="card-desc">Select a local MP3 file to analyze and convert in real-time.</p>
+                    <div class="file-drop-zone" id="drop-zone">
+                        <input type="file" id="audio-file" accept="audio/mp3,audio/mpeg" class="file-input">
+                        <label for="audio-file" class="file-label">
+                            <span class="upload-icon">📂</span>
+                            <span class="file-text" id="file-text-prompt">Choose an MP3 file or drag & drop</span>
+                        </label>
+                    </div>
+                    <div class="file-info hidden" id="file-info">
+                        <span class="file-name" id="selected-file-name">No file loaded</span>
+                        <span class="file-size" id="selected-file-size"></span>
+                    </div>
+                </div>
+
+                <div class="card playback-card">
+                    <h2>2. Playback Controls</h2>
+                    <div class="playback-buttons">
+                        <button id="btn-play" class="btn btn-primary" disabled title="Play">
+                            <span class="btn-icon">▶</span> Play
+                        </button>
+                        <button id="btn-pause" class="btn btn-secondary" disabled title="Pause">
+                            <span class="btn-icon">⏸</span> Pause
+                        </button>
+                        <button id="btn-stop" class="btn btn-danger" disabled title="Stop">
+                            <span class="btn-icon">⏹</span> Stop
+                        </button>
+                    </div>
+
+                    <!-- Progress / Seek Bar -->
+                    <div class="progress-container">
+                        <span class="time-display" id="current-time">00:00</span>
+                        <input type="range" id="seek-bar" class="seek-slider" min="0" max="100" value="0" step="0.1" disabled>
+                        <span class="time-display" id="duration">00:00</span>
+                    </div>
+                </div>
+
+                <div class="card tuning-card">
+                    <h2>3. Pitch / Tuning Conversion</h2>
+                    <p class="card-desc">Shift the fundamental reference frequency by altering the playback rate. This recalibrates 440 Hz tracks to alternative frequencies.</p>
+                    <div class="tuning-selector-group">
+                        <label for="tuning-select" class="form-label">Select Target Tuning:</label>
+                        <div class="select-wrapper">
+                            <select id="tuning-select">
+                                <option value="440" selected>440 Hz - Standard Reference</option>
+                                <option value="432">432 Hz - Universal / Cosmic Healing (0.9818x)</option>
+                                <option value="528">528 Hz - DNA Repair / Solfeggio Transformation (1.2000x)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="tuning-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Playback Rate:</span>
+                            <span class="stat-value" id="playback-rate-val">1.0000x</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Pitch Shift:</span>
+                            <span class="stat-value" id="pitch-shift-cents">0.0 cents</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Panel: Spectrum Visualizer -->
+            <section class="visualizer-panel">
+                <div class="card visualizer-card">
+                    <div class="visualizer-header">
+                        <h2>Real-Time Frequency Spectrum</h2>
+                        <div class="visualizer-controls">
+                            <label for="fft-size-select">FFT Size:</label>
+                            <select id="fft-size-select" class="mini-select">
+                                <option value="1024">1024</option>
+                                <option value="2048" selected>2048</option>
+                                <option value="4096">4096</option>
+                                <option value="8192">8192</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="canvas-wrapper">
+                        <canvas id="visualizer-canvas"></canvas>
+                        <div class="canvas-grid-overlay"></div>
+                    </div>
+                    <div class="visualizer-legend">
+                        <span>20 Hz</span>
+                        <span>100 Hz</span>
+                        <span>500 Hz</span>
+                        <span>1 kHz</span>
+                        <span>5 kHz</span>
+                        <span>10 kHz</span>
+                        <span>20 kHz</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Information Section & Table -->
+        <section class="info-section">
+            <div class="card table-card">
+                <h2>Frequency Reference Guide</h2>
+                <p class="table-intro">Understand the physical, mathematical, and historical context behind key tuning standards and Solfeggio frequencies.</p>
+
+                <div class="table-responsive">
+                    <table class="freq-table">
+                        <thead>
+                            <tr>
+                                <th>Frequency</th>
+                                <th>Tuning Name</th>
+                                <th>Purpose, Effects & Mathematical Properties</th>
+                                <th>Historical Context & Reference Sources</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="freq-cell">440 Hz</td>
+                                <td class="name-cell">Standard Concert Pitch</td>
+                                <td>Widely accepted acoustic standard for tuning musical instruments. Purely utilitarian reference point used globally for orchestral calibration.</td>
+                                <td>Adopted as the international standard in 1955 by the International Organization for Standardization (<strong>ISO 16</strong>).</td>
+                            </tr>
+                            <tr>
+                                <td class="freq-cell text-cyan">432 Hz</td>
+                                <td class="name-cell">Verdi Tuning / Universal Healing</td>
+                                <td>Believed to vibrate in harmony with the natural frequency of the Earth (Schumann resonances) and sacred geometry. Promotes a more relaxed, deeper listening experience by slightly lowering pitch and slowing tempo.</td>
+                                <td>Advocated by Italian composer Giuseppe Verdi in the 19th century as ideal for operatic voices. Supported by modern alternative acousticians and therapeutic sound practitioners.</td>
+                            </tr>
+                            <tr>
+                                <td class="freq-cell text-purple">528 Hz</td>
+                                <td class="name-cell">Transformation & DNA Repair (Solfeggio)</td>
+                                <td>Known as the "Frequency of Love" or the "Transformation Frequency". Widely utilized in sound therapy, meditation music, and holistic healing. Promotes biological cell resonance and anxiety reduction.</td>
+                                <td>Part of the ancient <strong>Solfeggio Frequencies</strong> scale rediscovered by Dr. Joseph Puleo. Historically linked to sacred chants and medieval choral music for spiritual elevation.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <p>&copy; 2025 FREQLAB. Built with Vanilla JS and Web Audio API. 100% Client-Side. No servers, no cookies.</p>
+        </footer>
+    </div>
+
+    <!-- Script File -->
+    <script src="script.js"></script>
+</body>
+</html>
