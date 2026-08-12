@@ -2,7 +2,7 @@
 
 A lightweight, web-based audio analyzer built with vanilla JavaScript and the Web Audio API. It allows users to upload any MP3 file and inspect its frequency spectrum (in Hertz) in real-time through an interactive canvas visualizer.
 
-🚀 **Live Demo:** [https://anderitmo.github.io/mp3-frequency-analyzer/](https://YOUR-USERNAME.github.io/mp3-frequency-analyzer/)
+🚀 **Live Demo:** [https://anderitmo.github.io/mp3-frequency-analyzer/](https://anderitmo.github.io/mp3-frequency-analyzer/)
 
 ---
 
